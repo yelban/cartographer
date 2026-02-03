@@ -137,6 +137,14 @@ Once all subagents complete, synthesize their outputs:
 
 ### Step 6: Write CODEBASE_MAP.md
 
+**CRITICAL: Get the actual timestamp first!** Before writing the map, fetch the current time:
+
+```bash
+date -u +"%Y-%m-%dT%H:%M:%SZ"
+```
+
+Use this exact output for both the frontmatter `last_mapped` field and the header text. Never estimate or hardcode timestamps.
+
 Create `docs/CODEBASE_MAP.md` using this structure:
 
 ```markdown
@@ -264,7 +272,7 @@ When updating an existing map:
 1. Identify changed files from git or scanner diff
 2. Spawn subagents only for changed modules
 3. Merge new analysis with existing map
-4. Update `last_mapped` timestamp
+4. Update `last_mapped` timestamp (run `date -u +"%Y-%m-%dT%H:%M:%SZ"` to get actual time)
 5. Preserve unchanged sections
 
 ## Token Budget Reference
