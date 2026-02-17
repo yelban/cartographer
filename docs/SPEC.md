@@ -247,7 +247,7 @@ If tiktoken is missing and UV is not available, the script prints installation i
 | `plugins/cartographer/.claude-plugin/plugin.json` | Plugin registration: name, description, author |
 | `plugins/cartographer/skills/cartographer/SKILL.md` | Complete 8-step workflow instructions for Claude |
 | `plugins/cartographer/skills/cartographer/scripts/scan-codebase.py` | Recursive codebase scanner with tiktoken token counting |
-| `plugins/cartographer/LICENSE` | MIT License (Bootoshi, 2025) |
+| `plugins/cartographer/LICENSE` | MIT License (yelban) |
 | `plugins/cartographer/README.md` | Plugin-level technical documentation |
 | `README.md` | Root installation guide and marketing |
 
@@ -301,7 +301,7 @@ If tiktoken is missing and UV is not available, the script prints installation i
 
 | Method | Status | Command |
 |--------|--------|---------|
-| Claude Code Marketplace | Active (primary) | `/plugin marketplace add kingbootoshi/cartographer` |
+| Claude Code Marketplace | Active (primary) | `/plugin marketplace add yelban/cartographer` |
 | Manual git clone | Supported (fallback) | Clone to `~/.claude/skills/` |
 
 ### Gating
@@ -345,7 +345,7 @@ No feature flags. The plugin is fully available once installed. Natural cost gat
 
 ## 11. Summary
 
-**Cartographer** is a Claude Code plugin (MIT, by Bootoshi) that maps codebases using parallel Sonnet subagents.
+**Cartographer** is a Claude Code plugin (MIT, by yelban) that maps codebases using parallel Sonnet subagents.
 
 | Metric | Value |
 |--------|-------|

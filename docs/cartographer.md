@@ -227,7 +227,7 @@ sequenceDiagram
 
 | Mode | How | Prerequisites |
 |------|-----|--------------|
-| Marketplace install | `/plugin marketplace add kingbootoshi/cartographer` → `/plugin install cartographer` | Claude Code with plugin support |
+| Marketplace install | `/plugin marketplace add yelban/cartographer` → `/plugin install cartographer` | Claude Code with plugin support |
 | Manual clone | `git clone` to `~/.claude/skills/cartographer` | Claude Code, tiktoken (`pip install tiktoken`) |
 
 ### 5.4 AI Agent Integration

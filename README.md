@@ -63,7 +63,7 @@ The section below documents the legacy Claude Code plugin workflow that produces
 **Step 1:** Add the marketplace to Claude Code:
 
 ```
-/plugin marketplace add kingbootoshi/cartographer
+/plugin marketplace add yelban/cartographer
 ```
 
 **Step 2:** Install the plugin:

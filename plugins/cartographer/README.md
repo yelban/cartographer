@@ -22,13 +22,13 @@ claude plugins install cartographer
 Clone to your Claude skills directory:
 
 ```bash
-git clone https://github.com/bootoshi/cartographer.git ~/.claude/skills/cartographer
+git clone https://github.com/yelban/cartographer.git ~/.claude/skills/cartographer
 ```
 
 Or for project-specific use:
 
 ```bash
-git clone https://github.com/bootoshi/cartographer.git .claude/skills/cartographer
+git clone https://github.com/yelban/cartographer.git .claude/skills/cartographer
 ```
 
 ### Dependencies
