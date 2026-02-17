@@ -26,8 +26,8 @@ First, check if `docs/CODEBASE_MAP.md` already exists:
 **If it exists:**
 1. Read the `last_mapped` timestamp from the map's frontmatter
 2. Check for changes since last map:
-   - Run `git log --oneline --since="<last_mapped>"` if git available
-   - If no git, run the scanner and compare file counts/paths
+   - **Primary (git available):** Run `git log --oneline --since="<last_mapped>"` to detect changed files
+   - **Fallback (no git):** Check if `docs/.cartographer-state.json` exists. If so, run the scanner and compare file SHA-256 hashes against the stored state. If the state file doesn't exist, fall back to comparing file counts/paths
 3. If significant changes detected, proceed to update mode
 4. If no changes, inform user the map is current
 
@@ -48,13 +48,13 @@ ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format js
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json
 ```
 
-**Note:** The script uses UV inline script dependencies. When run with `uv run`, tiktoken is automatically installed in an isolated environment - no global pip install needed.
+**Note:** The script uses UV inline script dependencies (PEP 723). When run with `uv run`, tiktoken and pathspec are automatically installed in an isolated environment - no global pip install needed.
 
-If not using UV and tiktoken is missing:
+If not using UV and dependencies are missing:
 ```bash
-pip install tiktoken
+pip install tiktoken pathspec
 # or
-pip3 install tiktoken
+pip3 install tiktoken pathspec
 ```
 
 The output provides:
@@ -90,50 +90,66 @@ Use the Task tool with `subagent_type: "Explore"` and `model: "sonnet"` for each
 
 **CRITICAL: Spawn all subagents in a SINGLE message with multiple Task tool calls.**
 
-Each subagent prompt should:
+Each subagent prompt MUST:
 1. List the specific files/directories to read
-2. Request analysis of:
-   - Purpose of each file/module
-   - Key exports and public APIs
-   - Dependencies (what it imports)
-   - Dependents (what imports it, if discoverable)
-   - Patterns and conventions used
-   - Gotchas or non-obvious behavior
-3. Request output as structured markdown
+2. Request analysis using the **strict structured output format** below
+3. Include the anti-hallucination and length-limit instructions verbatim
 
-**Example subagent prompt:**
+**Subagent output schema (include in every subagent prompt):**
 
-```
+````
 You are mapping part of a codebase. Read and analyze these files:
-- src/api/routes.ts
-- src/api/middleware/auth.ts
-- src/api/middleware/rateLimit.ts
-[... list all files in this group]
+- [list all files in this group]
 
-For each file, document:
-1. **Purpose**: One-line description
-2. **Exports**: Key functions, classes, types exported
-3. **Imports**: Notable dependencies
-4. **Patterns**: Design patterns or conventions used
-5. **Gotchas**: Non-obvious behavior, edge cases, warnings
+You MUST return your analysis using EXACTLY this structured format.
+Do NOT add preamble, conversational text, or deviate from this schema.
 
-Also identify:
-- How these files connect to each other
-- Entry points and data flow
-- Any configuration or environment dependencies
+## Subagent Report
+- **status**: COMPLETE | PARTIAL | FAILED
+- **analyzed_paths**: [list of files successfully analyzed]
+- **failed_paths**: [list of files that could not be read, or "none"]
+- **failure_reason**: [if PARTIAL/FAILED, explain why]
 
-Return your analysis as markdown with clear headers per file/module.
-```
+### File: [relative/path/to/file.ext]
+- **Purpose**: [1 sentence max]
+- **Exports**: [key functions, classes, types — bullet list]
+- **Imports**:
+  - internal: [imports from within the assigned file group]
+  - [EXTERNAL/UNKNOWN]: [imports from outside assigned files — label each]
+- **Patterns**: [design patterns or conventions, 1-2 bullets max]
+- **Gotchas**: [non-obvious behavior, 1-2 bullets max, or "none"]
+
+[Repeat for each file]
+
+### Cross-File Analysis
+- **Connections**: [how files in this group relate to each other]
+- **Entry points**: [which files serve as entry points, if any]
+- **Data flow**: [key data flow paths within this group]
+- **Config/env dependencies**: [environment variables, config files needed]
+
+CRITICAL RULES:
+- Do NOT hallucinate dependencies. If a module imports something not in your
+  assigned files, label it as [EXTERNAL/UNKNOWN].
+- Keep each file analysis under 150 words. Prefer bullets over prose.
+- If you cannot read a file, set status to PARTIAL and list it in failed_paths.
+  Continue analyzing the remaining files.
+- Do NOT summarize or rephrase the file contents — document the structure.
+````
 
 ### Step 5: Synthesize Reports
 
 Once all subagents complete, synthesize their outputs:
 
-1. **Merge** all subagent reports
-2. **Deduplicate** any overlapping analysis
-3. **Identify cross-cutting concerns** (shared patterns, common gotchas)
-4. **Build the architecture diagram** showing module relationships
-5. **Extract key navigation paths** for common tasks
+1. **Check subagent status**: Review each report's `status` field
+   - If any subagent returned `PARTIAL` or `FAILED`, note the failed_paths
+   - Continue synthesis with available data — do NOT re-run failed subagents
+   - Add an `## Unmapped Areas` section to the final map listing any gaps
+2. **Merge** all subagent reports
+3. **Deduplicate** any overlapping analysis
+4. **Resolve `[EXTERNAL/UNKNOWN]` references** across subagent reports — if one subagent's unknown import is another subagent's export, connect them
+5. **Identify cross-cutting concerns** (shared patterns, common gotchas)
+6. **Build the architecture diagram** showing module relationships
+7. **Extract key navigation paths** for common tasks
 
 ### Step 6: Write CODEBASE_MAP.md
 
@@ -203,6 +219,27 @@ graph TB
 
 [Repeat for each module]
 
+## Entry Points
+
+[Where the application starts. List main entry files, CLI commands, route definitions, event handlers.]
+
+| Entry Point | File | Description |
+|-------------|------|-------------|
+| [e.g. CLI main] | [path] | [what it does] |
+
+## Data Models & Schema
+
+[Core data structures, ORM entities, database schema, global state boundaries.]
+[If no database/ORM, document key types/interfaces that define the domain model.]
+
+## External Integrations
+
+[Third-party APIs, cloud services, databases, message queues the project depends on.]
+
+| Service | Purpose | Config Location |
+|---------|---------|-----------------|
+| [e.g. PostgreSQL] | [primary datastore] | [env var or config file] |
+
 ## Data Flow
 
 [Mermaid sequence diagrams for key flows]
@@ -269,11 +306,26 @@ If cartographer helped you, consider starring: https://github.com/kingbootoshi/c
 
 When updating an existing map:
 
-1. Identify changed files from git or scanner diff
+1. Identify changed files:
+   - **With git:** `git diff --name-only <last_mapped_commit>..HEAD` or `git log --name-only --since="<last_mapped>"`
+   - **Without git:** Compare scanner output against `docs/.cartographer-state.json` (file hashes)
 2. Spawn subagents only for changed modules
 3. Merge new analysis with existing map
+   - **CRITICAL:** Perform in-place replacement of ONLY the updated modules. You MUST retain all existing documentation for unmodified modules verbatim. Do NOT summarize or trim unchanged sections.
 4. Update `last_mapped` timestamp (run `date -u +"%Y-%m-%dT%H:%M:%SZ"` to get actual time)
 5. Preserve unchanged sections
+6. Update `docs/.cartographer-state.json` with current file hashes:
+   ```json
+   {
+     "last_mapped": "2026-02-17T00:00:00Z",
+     "scanner_version": "2.0.0",
+     "files": {
+       "src/main.ts": "<sha256-hash>",
+       "src/lib/util.ts": "<sha256-hash>"
+     }
+   }
+   ```
+   Generate hashes via: `python3 -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" <file>`
 
 ## Token Budget Reference
 
@@ -287,13 +339,15 @@ Always use Sonnet subagents - best balance of capability and cost for file analy
 
 ## Troubleshooting
 
-**Scanner fails with tiktoken error:**
+**Scanner fails with dependency error:**
 ```bash
-pip install tiktoken
+# Recommended: use uv (auto-installs tiktoken + pathspec)
+uv run ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json
+
+# Manual install:
+pip install tiktoken pathspec
 # or
-pip3 install tiktoken
-# or with uv:
-uv pip install tiktoken
+pip3 install tiktoken pathspec
 ```
 
 **Python not found:**
@@ -305,5 +359,6 @@ Try `python3`, `python`, or use `uv run` which handles Python automatically.
 - Use `--max-tokens` flag to skip huge files
 
 **Git not available:**
-- Fall back to file count/path comparison
-- Store file list hash in map frontmatter for change detection
+- Fall back to SHA-256 hash comparison via `docs/.cartographer-state.json`
+- If state file doesn't exist, fall back to file count/path comparison
+- State file is auto-generated after each successful mapping

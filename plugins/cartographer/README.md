@@ -33,12 +33,14 @@ git clone https://github.com/bootoshi/cartographer.git .claude/skills/cartograph
 
 ### Dependencies
 
-The scanner script requires tiktoken:
+The scanner script requires tiktoken and pathspec (auto-installed via UV):
 
 ```bash
-uv pip install tiktoken
-# or
-pip install tiktoken
+# Recommended: dependencies install automatically with uv run
+uv run scan-codebase.py .
+
+# Manual install if not using UV:
+pip install tiktoken pathspec
 ```
 
 ## Usage
@@ -83,7 +85,7 @@ Just run `/cartographer` again to update.
 |  2. Plan subagent assignments         |
 |     - Group files by module           |
 |     - Balance token budgets           |
-|     - Target ~500k tokens per agent   |
+|     - Target ~150k tokens per agent   |
 +---------------------------------------+
         |
         v
@@ -113,12 +115,15 @@ Just run `/cartographer` again to update.
 
 The generated `docs/CODEBASE_MAP.md` includes:
 
-- **System Overview** - ASCII architecture diagram
+- **System Overview** - Mermaid architecture diagram
 - **Directory Structure** - Annotated file tree
 - **Module Guide** - Per-module documentation with:
   - Purpose and entry points
   - Key files with token counts
   - Exports and dependencies
+- **Entry Points** - Where the application starts (v2.0)
+- **Data Models & Schema** - Core data structures and ORM entities (v2.0)
+- **External Integrations** - Third-party APIs and services (v2.0)
 - **Data Flow** - Request flows, auth flows, etc.
 - **Conventions** - Naming, patterns, style
 - **Gotchas** - Non-obvious behaviors and warnings
@@ -128,18 +133,21 @@ The generated `docs/CODEBASE_MAP.md` includes:
 
 | Model | Context Window | Budget per Subagent |
 |-------|---------------|---------------------|
-| Sonnet | 1,000,000 | 500,000 |
+| Sonnet | 200,000 | 150,000 |
 | Opus | 200,000 | 100,000 |
 | Haiku | 200,000 | 100,000 |
 
-Cartographer uses Sonnet subagents by default for maximum coverage.
+Cartographer uses Sonnet subagents by default for best balance of capability and cost.
 
 ## Configuration
 
-The scanner respects `.gitignore` and has sensible defaults for:
-- Ignoring `node_modules`, `dist`, `build`, etc.
-- Skipping binary files
+The scanner uses `pathspec` for full gitignore-compatible pattern matching:
+- **Negation patterns** (`!pattern`) fully supported (v2.0)
+- **Nested `.gitignore`** files respected at each directory level (v2.0)
+- Sensible defaults for ignoring `node_modules`, `dist`, `build`, `.turbo`, `.nx`, etc.
+- Skipping binary files (null-byte sniffing + extension whitelist)
 - Skipping files over 1MB or 50k tokens
+- Symlink loop detection prevents infinite recursion (v2.0)
 
 ## License
 
