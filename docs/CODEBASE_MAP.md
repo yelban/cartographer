@@ -69,7 +69,7 @@ cartographer/
 │       │       ├── scripts/
 │       │       │   └── scan-codebase.py  # Recursive scanner with tiktoken (3,357 tokens)
 │       │       └── SKILL.md              # Complete workflow instructions (2,150 tokens)
-│       ├── LICENSE                   # MIT License (Bootoshi, 2025)
+│       ├── LICENSE                   # MIT License (yelban, 2025)
 │       └── README.md                # Plugin-level documentation (845 tokens)
 ├── docs/
 │   └── CODEBASE_MAP.md             # Generated output (this file)
@@ -143,7 +143,7 @@ uv run scan-codebase.py [path] --format json|tree|compact --max-tokens 50000
 |------|---------|--------|
 | `README.md` (root) | Installation guide, quick start, token usage warning | 492 |
 | `plugins/cartographer/README.md` | Detailed plugin docs, trigger phrases, token budgets | 845 |
-| `plugins/cartographer/LICENSE` | MIT License (Bootoshi, 2025) | 219 |
+| `plugins/cartographer/LICENSE` | MIT License (yelban, 2025) | 219 |
 
 ## Data Flow
 

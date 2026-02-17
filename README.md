@@ -10,7 +10,7 @@ A Claude Code plugin that maps and documents codebases of any size using paralle
 **Step 1:** Add the marketplace to Claude Code:
 
 ```
-/plugin marketplace add kingbootoshi/cartographer
+/plugin marketplace add yelban/cartographer
 ```
 
 **Step 2:** Install the plugin:
