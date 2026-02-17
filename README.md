@@ -38,18 +38,18 @@ Cartographer orchestrates multiple Sonnet subagents to analyze your entire codeb
 
 ## How it Works
 
-1. Runs a scanner script to get file tree with token counts (respects .gitignore)
-2. Plans how to split work across subagents based on token budgets
-3. Spawns Sonnet subagents in parallel - each analyzes a portion of the codebase
-4. Synthesizes all subagent reports into comprehensive documentation
+1. Runs a scanner script to get file tree with token counts (full gitignore support including `!pattern` negation and nested `.gitignore`)
+2. Plans how to split work across subagents based on token budgets (~150k per agent)
+3. Spawns Sonnet subagents in parallel — each returns a structured analysis report
+4. Synthesizes all reports into comprehensive documentation (with graceful degradation for partial failures)
 
 ## Update Mode
 
 If `docs/CODEBASE_MAP.md` already exists, Cartographer will:
 
-1. Check git history for changes since last mapping
+1. Check git history for changes since last mapping (or SHA-256 hash comparison for non-git repos)
 2. Only re-analyze changed modules
-3. Merge updates with existing documentation
+3. Merge updates while preserving unchanged sections verbatim
 
 Just run `/cartographer` again to update.
 
@@ -61,7 +61,7 @@ You can ask Claude to use Haiku subagents instead for a cheaper run, but accurac
 
 ## Requirements
 
-- tiktoken (for token counting): `pip install tiktoken` or `uv pip install tiktoken`
+- tiktoken and pathspec (auto-installed when using `uv run`): `pip install tiktoken pathspec`
 
 ## Full Documentation
 
