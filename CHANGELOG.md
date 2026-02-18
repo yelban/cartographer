@@ -2,6 +2,18 @@
 
 All notable changes to Cartographer are documented in this file.
 
+## [2.1.0] - 2026-02-18
+
+### Added
+
+- **Scanner**: `--exclude PATTERN` CLI flag to exclude paths matching gitignore-format patterns (repeatable)
+- **Workflow**: Scanner commands in SKILL.md now exclude tool outputs by default (`CODEBASE_MAP.md`, `.cartographer-state.json`, `SPEC.md`, `cartographer.md`, `codex-plan.md`)
+
+### Fixed
+
+- **Scanner**: Recursive self-reference — Cartographer's own outputs were included in scan, causing token count drift and non-reproducible results
+- **Workflow**: `docs/.cartographer-state.json` no longer tracks tool output hashes, preventing unnecessary incremental update triggers
+
 ## [2.0.0] - 2026-02-17
 
 ### Added

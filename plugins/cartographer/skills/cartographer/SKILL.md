@@ -39,13 +39,28 @@ Run the scanner script to get an overview. Try these in order until one works:
 
 ```bash
 # Option 1: UV (preferred - auto-installs tiktoken in isolated env)
-uv run ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json
+uv run ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json \
+  --exclude "docs/CODEBASE_MAP.md" \
+  --exclude "docs/.cartographer-state.json" \
+  --exclude "docs/SPEC.md" \
+  --exclude "docs/cartographer.md" \
+  --exclude "codex-plan.md"
 
 # Option 2: Direct execution (requires tiktoken installed)
-${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json
+${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json \
+  --exclude "docs/CODEBASE_MAP.md" \
+  --exclude "docs/.cartographer-state.json" \
+  --exclude "docs/SPEC.md" \
+  --exclude "docs/cartographer.md" \
+  --exclude "codex-plan.md"
 
 # Option 3: Explicit python3
-python3 ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/cartographer/scripts/scan-codebase.py . --format json \
+  --exclude "docs/CODEBASE_MAP.md" \
+  --exclude "docs/.cartographer-state.json" \
+  --exclude "docs/SPEC.md" \
+  --exclude "docs/cartographer.md" \
+  --exclude "codex-plan.md"
 ```
 
 **Note:** The script uses UV inline script dependencies (PEP 723). When run with `uv run`, tiktoken and pathspec are automatically installed in an isolated environment - no global pip install needed.
@@ -305,6 +320,8 @@ If cartographer helped you, consider starring: https://github.com/yelban/cartogr
 ## Update Mode
 
 When updating an existing map:
+
+**Important:** The `files` hash map in `docs/.cartographer-state.json` must exclude Cartographer outputs (`CODEBASE_MAP.md`, `.cartographer-state.json`) and other skill outputs (`SPEC.md`, `cartographer.md`, `codex-plan.md`). These are excluded via `--exclude` flags in the scanner command to prevent recursive self-reference and ensure stable, reproducible token counts.
 
 1. Identify changed files:
    - **With git:** `git diff --name-only <last_mapped_commit>..HEAD` or `git log --name-only --since="<last_mapped>"`

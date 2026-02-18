@@ -341,6 +341,7 @@ def scan_directory(
     root: Path,
     encoding: tiktoken.Encoding,
     max_file_tokens: int = 50000,
+    exclude_patterns: list[str] | None = None,
 ) -> dict:
     """
     Scan a directory and return file information with token counts.
@@ -357,6 +358,10 @@ def scan_directory(
     """
     root = root.resolve()
     visited_real_paths: set[str] = set()
+
+    exclude_spec = None
+    if exclude_patterns:
+        exclude_spec = pathspec.PathSpec.from_lines("gitwildmatch", exclude_patterns)
 
     files = []
     directories = []
@@ -428,6 +433,8 @@ def scan_directory(
             rel_path = str(current.relative_to(root))
 
             if rel_path != ".":
+                if exclude_spec and exclude_spec.match_file(rel_path + "/"):
+                    return
                 if is_ignored(rel_path, True, specs):
                     return
                 directories.append(rel_path)
@@ -455,6 +462,8 @@ def scan_directory(
         elif current.is_file():
             rel_path = str(current.relative_to(root))
 
+            if exclude_spec and exclude_spec.match_file(rel_path):
+                return
             if is_ignored(rel_path, False, specs):
                 return
 
@@ -597,6 +606,13 @@ def main():
         default="cl100k_base",
         help="Tiktoken encoding to use (default: cl100k_base)",
     )
+    parser.add_argument(
+        "--exclude",
+        action="append",
+        default=[],
+        metavar="PATTERN",
+        help="Exclude paths matching pattern (gitignore format). Repeatable.",
+    )
 
     args = parser.parse_args()
     path = Path(args.path).resolve()
@@ -618,7 +634,7 @@ def main():
         )
         sys.exit(1)
 
-    result = scan_directory(path, encoding, args.max_tokens)
+    result = scan_directory(path, encoding, args.max_tokens, args.exclude)
 
     if args.format == "json":
         print(json.dumps(result, indent=2))

@@ -142,12 +142,14 @@ Cartographer uses Sonnet subagents by default for best balance of capability and
 ## Configuration
 
 The scanner uses `pathspec` for full gitignore-compatible pattern matching:
+- **`--exclude PATTERN`** flag to exclude specific paths (gitignore format, repeatable) (v2.1)
 - **Negation patterns** (`!pattern`) fully supported (v2.0)
 - **Nested `.gitignore`** files respected at each directory level (v2.0)
 - Sensible defaults for ignoring `node_modules`, `dist`, `build`, `.turbo`, `.nx`, etc.
 - Skipping binary files (null-byte sniffing + extension whitelist)
 - Skipping files over 1MB or 50k tokens
 - Symlink loop detection prevents infinite recursion (v2.0)
+- Tool outputs (`CODEBASE_MAP.md`, `SPEC.md`, etc.) excluded by default to prevent recursive self-reference (v2.1)
 
 ## License
 
