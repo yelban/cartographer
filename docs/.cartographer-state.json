@@ -1,0 +1,16 @@
+{
+  "last_mapped": "2026-02-17T13:35:50Z",
+  "scanner_version": "2.0.0",
+  "files": {
+    ".claude-plugin/marketplace.json": "d3b888c09e8f66582199b84cb9f0ac2a1b7600fb8180aa0af405ece706080673",
+    ".claude/settings.local.json": "1dd855408afdb06906f8cbb96ebcf963a45cfde931ef9c03f8bceaf5ec79d08e",
+    ".claude/plans/2026-02-17-cartographer-v2.0-upgrade.md": "3f3e3a24c34abcabcedcc820334c17a7d6a96ffc8ef5f894aad0b9fd67a24cb7",
+    "plugins/cartographer/.claude-plugin/plugin.json": "f9a22e912eaafdd1e5fb2eae4f23c7bd38dbef9757875d452297c2c781df9d42",
+    "plugins/cartographer/LICENSE": "58b85cc7c36e37bd1a9ece2ddc12ddbc7acc03e255dc4461ff82ca6bb698a0d6",
+    "plugins/cartographer/README.md": "616b2a06d27637c88db2160f519b8abdff25180f33f89910f249e597a8e6b1cf",
+    "plugins/cartographer/skills/cartographer/SKILL.md": "7b4e1a90392c5c625f2afd3df851afd749b1e21446bccd714ca76607fcb97006",
+    "plugins/cartographer/skills/cartographer/scripts/scan-codebase.py": "1a9cc4fd98d69b9312fd2fa80816cf54f382fae3e4a52bdb77f881767c379dbe",
+    "README.md": "289ecdf54e9d371ea10886eec6e4d862c099ce8da61b1215b1e1cc4b3d0d2dea",
+    "CHANGELOG.md": "1020fe6591cd5c7d1b078b05665a78736d69c5d1928db3890ce4c065aa4c7a3b"
+  }
+}

@@ -38,7 +38,7 @@ Cartographer orchestrates multiple Sonnet subagents to analyze your entire codeb
 
 ## How it Works
 
-1. Runs a scanner script to get file tree with token counts (full gitignore support including `!pattern` negation and nested `.gitignore`)
+1. Runs a scanner script to get file tree with token counts (full gitignore support including `!pattern` negation, nested `.gitignore`, and `--exclude` for tool outputs)
 2. Plans how to split work across subagents based on token budgets (~150k per agent)
 3. Spawns Sonnet subagents in parallel — each returns a structured analysis report
 4. Synthesizes all reports into comprehensive documentation (with graceful degradation for partial failures)
